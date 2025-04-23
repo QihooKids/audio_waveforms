@@ -52,7 +52,7 @@ class RecorderController extends ChangeNotifier {
 
   bool get shouldRefresh => _shouldRefresh;
 
-  Timer? _timer;
+  Timer? timer;
 
   bool _hasPermission = false;
 
@@ -99,7 +99,7 @@ class RecorderController extends ChangeNotifier {
 
   Duration _recordedDuration = Duration.zero;
 
-  Timer? _recorderTimer;
+  Timer? recorderTimer;
 
   final ValueNotifier<int> _currentScrolledDuration = ValueNotifier(0);
 
@@ -189,8 +189,8 @@ class RecorderController extends ChangeNotifier {
         if (_recorderState.isPaused) {
           _isRecording = await AudioWaveformsInterface.instance.resume();
           if (_isRecording) {
-            _startTimer();
-            _setRecorderState(RecorderState.recording);
+            startTimer();
+            setRecorderState(RecorderState.recording);
           } else {
             throw "Failed to resume recording";
           }
@@ -198,7 +198,7 @@ class RecorderController extends ChangeNotifier {
           return;
         }
         if (Platform.isIOS) {
-          _setRecorderState(RecorderState.initialized);
+          setRecorderState(RecorderState.initialized);
         }
         if (_recorderState.isInitialized) {
           _isRecording = await AudioWaveformsInterface.instance.record(
@@ -208,15 +208,15 @@ class RecorderController extends ChangeNotifier {
             overrideAudioSession: overrideAudioSession,
           );
           if (_isRecording) {
-            _setRecorderState(RecorderState.recording);
-            _startTimer();
+            setRecorderState(RecorderState.recording);
+            startTimer();
           } else {
             throw "Failed to start recording";
           }
           notifyListeners();
         }
       } else {
-        _setRecorderState(RecorderState.stopped);
+        setRecorderState(RecorderState.stopped);
         notifyListeners();
       }
     }
@@ -232,7 +232,7 @@ class RecorderController extends ChangeNotifier {
       recorderSettings: recorderSettings,
     );
     if (initialized) {
-      _setRecorderState(RecorderState.initialized);
+      setRecorderState(RecorderState.initialized);
     } else {
       throw "Failed to initialize recorder";
     }
@@ -263,9 +263,9 @@ class RecorderController extends ChangeNotifier {
       if (_isRecording) {
         throw "Failed to pause recording";
       }
-      _recorderTimer?.cancel();
-      _timer?.cancel();
-      _setRecorderState(RecorderState.paused);
+      recorderTimer?.cancel();
+      timer?.cancel();
+      setRecorderState(RecorderState.paused);
     }
     notifyListeners();
   }
@@ -285,8 +285,8 @@ class RecorderController extends ChangeNotifier {
     if (_recorderState.isRecording || _recorderState.isPaused) {
       final audioInfo = await AudioWaveformsInterface.instance.stop();
       _isRecording = false;
-      _timer?.cancel();
-      _recorderTimer?.cancel();
+      timer?.cancel();
+      recorderTimer?.cancel();
       if (audioInfo[Constants.resultDuration] != null) {
         final duration = audioInfo[Constants.resultDuration];
 
@@ -294,7 +294,7 @@ class RecorderController extends ChangeNotifier {
         _recordedFileDurationController.add(recordedDuration);
       }
       _elapsedDuration = Duration.zero;
-      _setRecorderState(RecorderState.stopped);
+      setRecorderState(RecorderState.stopped);
       if (callReset) reset();
       return audioInfo[Constants.resultFilePath];
     }
@@ -325,15 +325,15 @@ class RecorderController extends ChangeNotifier {
       await AudioWaveformsInterface.instance.getDecibel();
 
   /// Gets decibel by every defined frequency
-  void _startTimer() {
+  void startTimer() {
     _recordedDuration = Duration.zero;
     const duration = Duration(milliseconds: 50);
-    _recorderTimer = Timer.periodic(duration, (_) {
+    recorderTimer = Timer.periodic(duration, (_) {
       _elapsedDuration += duration;
       _currentDurationController.add(elapsedDuration);
     });
 
-    _timer = Timer.periodic(
+    timer = Timer.periodic(
       updateFrequency,
       (timer) async {
         var db = await getDecibel();
@@ -402,7 +402,7 @@ class RecorderController extends ChangeNotifier {
     _currentScrolledDuration.value = duration;
   }
 
-  void _setRecorderState(RecorderState state) {
+  void setRecorderState(RecorderState state) {
     if (!_recorderStateController.isClosed) {
       _recorderStateController.add(state);
       _recorderState = state;
@@ -424,10 +424,10 @@ class RecorderController extends ChangeNotifier {
     _currentDurationController.close();
     _recorderStateController.close();
     _recordedFileDurationController.close();
-    _recorderTimer?.cancel();
-    _timer?.cancel();
-    _timer = null;
-    _recorderTimer = null;
+    recorderTimer?.cancel();
+    timer?.cancel();
+    timer = null;
+    recorderTimer = null;
     _isDisposed = true;
     super.dispose();
   }
