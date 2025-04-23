@@ -298,21 +298,10 @@ class AudioWaveformsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             return
         }
         extractors[playerKey]?.stop()
-        extractors[playerKey] = WaveformExtractor(
-            context = applicationContext,
-            methodChannel = channel,
+        extractors[playerKey] = MPG123WaveformExtractor(
             expectedPoints = noOfSamples,
-            key = playerKey,
             path = path,
             result = result,
-            extractorCallBack = object : ExtractorCallBack {
-                override fun onProgress(value: Float) {
-                    if (value == 1.0F) {
-                        result.success(extractors[playerKey]?.sampleData)
-                    }
-                }
-
-            }
         )
         extractors[playerKey]?.startDecode()
     }
