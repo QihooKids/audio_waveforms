@@ -30,7 +30,7 @@ class AudioWaveformsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var recorderSettings = RecorderSettings(path = null, bitRate = null)
     private lateinit var applicationContext: Context
     private var audioPlayers = mutableMapOf<String, AudioPlayer?>()
-    private var extractors = mutableMapOf<String, WaveformExtractor?>()
+    private var extractors = mutableMapOf<String, MPG123WaveformExtractor?>()
     private var pluginBinding: ActivityPluginBinding? = null
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {

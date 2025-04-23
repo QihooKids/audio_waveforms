@@ -36,7 +36,7 @@ class MPG123WaveformExtractor(
         return task?.waveformData ?: emptyList()
     }
 
-    override fun cancel() {
+    override fun stop() {
         task?.cancel()
     }
 
