@@ -321,7 +321,7 @@ class RecorderController extends ChangeNotifier {
   }
 
   /// Gets decibels from native
-  Future<double?> _getDecibel() async =>
+  Future<double?> getDecibel() async =>
       await AudioWaveformsInterface.instance.getDecibel();
 
   /// Gets decibel by every defined frequency
@@ -336,7 +336,7 @@ class RecorderController extends ChangeNotifier {
     _timer = Timer.periodic(
       updateFrequency,
       (timer) async {
-        var db = await _getDecibel();
+        var db = await getDecibel();
         if (db == null) {
           _recorderState = RecorderState.stopped;
           throw "Failed to get sound level";
